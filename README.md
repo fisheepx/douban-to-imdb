@@ -26,7 +26,7 @@
 
     $ python douban_to_csv.py [user_id]
     
-*其中`[user_id]`为豆瓣的用户 ID，查找方法参见：[如何查找自己的豆瓣 ID](https://github.com/fisheepx/douban-to-imdb/blob/master/README.md#%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E8%87%AA%E5%B7%B1%E7%9A%84%E8%B1%86%E7%93%A3id)*
+*其中`[user_id]`为豆瓣的用户 ID，查找方法参见：[如何查找自己的豆瓣 ID](# 如何查找自己的豆瓣 ID)*
 
 #### 导入电影评分到 IMDB
 

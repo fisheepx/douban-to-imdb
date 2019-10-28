@@ -66,7 +66,7 @@
 
 ![image](https://github.com/fisheepx/douban-to-imdb/blob/master/screenshots/csv-to-imdb1.png)
 
-## 关于
+## 其它
 
 * #### 如何查找自己的豆瓣 ID
 

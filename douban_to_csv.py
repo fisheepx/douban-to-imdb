@@ -2,7 +2,12 @@ import os
 import sys
 import csv
 import requests
+from datetime import datetime
 from bs4 import BeautifulSoup
+
+USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36'
+START_DATE = '20050502'
+IS_OVER = False
 
 def get_rating(rating_class):
     """
@@ -14,7 +19,7 @@ def get_rating(rating_class):
     return int(rating_class[6])
 
 def get_imdb_id(url):
-    r = requests.get(url)
+    r = requests.get(url, headers={'User-Agent': USER_AGENT})
     soup = BeautifulSoup(r.text, 'lxml')
     info_aera = soup.find(id = 'info')
     imdb_id = None
@@ -34,7 +39,7 @@ def get_imdb_id(url):
 
 def get_info(url):
     info = []
-    r = requests.get(url)
+    r = requests.get(url, headers={'User-Agent': USER_AGENT})
     soup = BeautifulSoup(r.text, "lxml")
     movie_items = soup.find_all("div", {"class": "item"})
     if len(movie_items) > 0:
@@ -54,11 +59,16 @@ def get_info(url):
             if comment is not None:
                 comment = comment.contents[0].strip()
 
-            tags = item.find("span", {"class": "tags"})
-            if tags is not None:
-                tags = tags.text[3:].strip()
-            
+            comment_date = item.find("span", {"class": "date"})
+            if comment_date is not None:
+                comment_date = comment_date.contents[0].strip()
+
             imdb = get_imdb_id(douban_link)
+
+            if datetime.strptime(comment_date, '%Y-%m-%d') <= datetime.strptime(START_DATE, '%Y%m%d'):
+                global IS_OVER
+                IS_OVER = True
+                break
 
             info.append([title, rating, imdb])
     else:
@@ -68,7 +78,7 @@ def get_info(url):
 
 def get_max_index(user_id):
     url = f"https://movie.douban.com/people/{user_id}/collect"
-    r = requests.get(url)
+    r = requests.get(url, headers={'User-Agent': USER_AGENT})
     soup = BeautifulSoup(r.text, "lxml")
 
     paginator = soup.find("div", {"class": "paginator"})
@@ -91,6 +101,8 @@ def export(user_id):
     info = []
     page_no = 1
     for url in urls:
+        if IS_OVER:
+            break
         print(f'开始处理第 {page_no} 页...')
         info.extend(get_info(url))
         page_no += 1
@@ -103,7 +115,7 @@ def export(user_id):
     print('保存电影评分至：', file_name)
 
 def check_user_exist(user_id):
-    r = requests.get(f'https://movie.douban.com/people/{user_id}/')
+    r = requests.get(f'https://movie.douban.com/people/{user_id}/', headers={'User-Agent': USER_AGENT})
     soup = BeautifulSoup(r.text, 'lxml')
     if '页面不存在' in soup.title:
         return False
@@ -120,5 +132,9 @@ if __name__ == '__main__':
         print('请输入正确的豆瓣ID，如何查找自己的豆瓣ID 请参照：',
         'https://github.com/fisheepx/douban-to-imdb')
         sys.exit()
+    if len(sys.argv) == 3:
+        START_DATE = sys.argv[2]
+    print(f'开始抓取{START_DATE+"之后的" if START_DATE!="20050502" else "所有"}观影数据...')
     export(sys.argv[1])
+
 

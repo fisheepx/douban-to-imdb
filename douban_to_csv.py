@@ -136,5 +136,3 @@ if __name__ == '__main__':
         START_DATE = sys.argv[2]
     print(f'开始抓取{START_DATE+"之后的" if START_DATE!="20050502" else "所有"}观影数据...')
     export(sys.argv[1])
-
-

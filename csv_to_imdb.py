@@ -35,6 +35,9 @@ def mark(is_unmark = False, rating_ajust = -1):
     with open(file_name, 'r') as file:
         content = csv.reader(file, lineterminator='\n')
         for line in content:
+            # 如果只标记为看过并没有过分则略过
+            if not line[1]:
+                continue
             movie_name = line[0]
             movie_rate = int(line[1]) * 2 + rating_ajust
             imdb_id = line[2]
@@ -45,7 +48,7 @@ def mark(is_unmark = False, rating_ajust = -1):
 
             driver.find_element_by_name('q').send_keys(imdb_id)
             driver.find_element_by_name('q').submit()
-
+            time.sleep(3)
             try:
                 if is_unmark:
                     driver.find_element_by_class_name('star-rating-button')
@@ -69,7 +72,7 @@ def mark(is_unmark = False, rating_ajust = -1):
                     driver.find_element_by_css_selector(f"[title^='Click to rate: {movie_rate}']").click()
                     print(f'电影打分成功：{movie_name}({imdb_id})')
                     success_marked += 1
-            time.sleep(3)
+            time.sleep(1)
     driver.close()
 
     print('***************************************************************************')

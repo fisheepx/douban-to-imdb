@@ -24,9 +24,10 @@
 
 #### 导出豆瓣电影评分到 CSV文件
 
-    $ python douban_to_csv.py [user_id]
+    $ python douban_to_csv.py <user_id> [yyyymmdd] 
     
-*其中`[user_id]`为豆瓣的用户 ID，查找方法参见：[如何查找自己的豆瓣 ID](#如何查找自己的豆瓣-ID)*
+*`[user_id]`为豆瓣的用户 ID，查找方法参见：[如何查找自己的豆瓣 ID](#如何查找自己的豆瓣-ID)*
+*`[yyyymmdd]`为爬取的开始日期，即大于（不包含）该日期的电影评分才会被爬取*
 
 #### 导入电影评分到 IMDB
 

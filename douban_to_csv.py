@@ -114,7 +114,7 @@ def export(user_id):
         page_no += 1
     print(f'处理完成, 总共处理了 {len(info)} 部电影')
     file_name = os.path.dirname(os.path.abspath(__file__)) + '/movie.csv'
-    with open(file_name, 'w') as f:
+    with open(file_name, 'w', encoding='utf-8') as f:
         writer = csv.writer(f, lineterminator='\n')
         writer.writerows(info)
     print('保存电影评分至：', file_name)

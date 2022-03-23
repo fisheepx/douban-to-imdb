@@ -65,12 +65,12 @@ def mark(is_unmark=False, rating_ajust=-1):
                     print(f'已经在IMDB上打过分：{movie_name}({imdb_id})')
             else:
                 if is_unmark:
-                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]').click()
+                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]/button').click()
                     driver.find_element_by_xpath("//div[@class='ipc-starbar']/following-sibling::button[2]").click()
                     print(f'电影删除打分成功：{movie_name}({imdb_id})')
                     success_unmarked += 1
                 else:
-                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]').click()
+                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]/button').click()
                     from selenium.webdriver.common.action_chains import ActionChains
                     # 新版IMDB页面如果不先将鼠标移动到相应星星处再点击则则点击无效
                     star_ele = driver.find_element_by_xpath(f'//button[@aria-label="Rate {movie_rate}"]')
@@ -107,6 +107,6 @@ if __name__ == '__main__':
                   'https://github.com/fisheepx/douban-to-imdb')
             sys.exit()
         else:
-            mark(False, sys.argv[1])
+            mark(False, int(sys.argv[1]))
     else:
         mark()

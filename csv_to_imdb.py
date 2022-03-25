@@ -4,6 +4,7 @@ import time
 import csv
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
@@ -34,7 +35,7 @@ def mark(is_unmark=False, rating_ajust=-1):
     already_marked = []
     never_marked = []
     file_name = os.path.dirname(os.path.abspath(__file__)) + '/movie.csv'
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r', encoding='utf-8') as file:
         content = csv.reader(file, lineterminator='\n')
         for line in content:
             # 如果只标记为看过并没有打过分则略过
@@ -48,8 +49,10 @@ def mark(is_unmark=False, rating_ajust=-1):
                 print('无法在IMDB上找到：', movie_name)
                 continue
 
-            driver.find_element_by_name('q').send_keys(imdb_id)
-            driver.find_element_by_name('q').submit()
+            WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.ID, 'suggestion-search')))
+            search_bar = driver.find_element_by_id('suggestion-search')
+            search_bar.send_keys(imdb_id)
+            search_bar.submit()
             time.sleep(3)
             try:
                 if is_unmark:
@@ -64,19 +67,28 @@ def mark(is_unmark=False, rating_ajust=-1):
                     already_marked.append(f'{movie_name}({imdb_id})')
                     print(f'已经在IMDB上打过分：{movie_name}({imdb_id})')
             else:
+                rate_btn_xpath = '//div[@data-testid="hero-rating-bar__user-rating"]/button'
+                WebDriverWait(driver, 10).until(
+                    EC.element_to_be_clickable((By.XPATH, rate_btn_xpath))
+                )
+                driver.find_element_by_xpath(rate_btn_xpath).click()
+
                 if is_unmark:
-                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]/button').click()
                     driver.find_element_by_xpath("//div[@class='ipc-starbar']/following-sibling::button[2]").click()
                     print(f'电影删除打分成功：{movie_name}({imdb_id})')
                     success_unmarked += 1
                 else:
-                    driver.find_element_by_xpath('//div[@data-testid="hero-rating-bar__user-rating"]/button').click()
                     from selenium.webdriver.common.action_chains import ActionChains
                     # 新版IMDB页面如果不先将鼠标移动到相应星星处再点击则则点击无效
-                    star_ele = driver.find_element_by_xpath(f'//button[@aria-label="Rate {movie_rate}"]')
+                    star_ele_xpath = f'//button[@aria-label="Rate {movie_rate}"]'
+                    WebDriverWait(driver, 3).until(
+                        EC.visibility_of_element_located((By.XPATH, star_ele_xpath))
+                    )
+                    star_ele = driver.find_element_by_xpath(star_ele_xpath)
                     mark_action = ActionChains(driver).move_to_element(star_ele).click()
                     mark_action.perform()
-                    driver.find_element_by_xpath("//div[@class='ipc-starbar']/following-sibling::button").click()
+                    confirm_rate_ele_xpath = "//div[@class='ipc-starbar']/following-sibling::button"
+                    driver.find_element_by_xpath(confirm_rate_ele_xpath).click()
                     print(f'电影打分成功：{movie_name}({imdb_id}) → {movie_rate}★')
                     success_marked += 1
             time.sleep(1)
